@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>SND Dashboard</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background-color: #0f172a;
+      color: #e5e7eb;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      padding: 16px 24px;
+      border-bottom: 1px solid #1f2937;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 {
+      font-size: 20px;
+      margin: 0;
+    }
+
+    header .subtitle {
+      font-size: 12px;
+      color: #9ca3af;
+    }
+
+    main {
+      padding: 16px 24px 32px;
+    }
+
+    .cards {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .card {
+      background-color: #020617;
+      border: 1px solid #1f2937;
+      border-radius: 8px;
+      padding: 12px 14px;
+      min-width: 140px;
+    }
+
+    .card-title {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-bottom: 4px;
+    }
+
+    .card-value {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .card-badge {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-top: 2px;
+    }
+
+    .table-wrapper {
+      margin-top: 8px;
+      border-radius: 8px;
+      border: 1px solid #1f2937;
+      overflow: hidden;
+      background-color: #020617;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    thead {
+      background-color: #030712;
+    }
+
+    th, td {
+      padding: 8px 10px;
+      text-align: right;
+      border-bottom: 1px solid #1f2937;
+    }
+
+    th {
+      font-weight: 500;
+      color: #9ca3af;
+      white-space: nowrap;
+    }
+
+    tbody tr:hover {
+      background-color: #111827;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 6px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .badge-allow {
+      background-color: rgba(22, 163, 74, 0.15);
+      color: #4ade80;
+    }
+
+    .badge-alert {
+      background-color: rgba(234, 179, 8, 0.15);
+      color: #facc15;
+    }
+
+    .badge-challenge {
+      background-color: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+    }
+
+    .badge-block {
+      background-color: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+    }
+
+    .risk-low {
+      color: #4ade80;
+    }
+
+    .risk-mid {
+      color: #facc15;
+    }
+
+    .risk-high {
+      color: #fb923c;
+    }
+
+    .risk-very-high {
+      color: #f87171;
+      font-weight: 600;
+    }
+
+    .top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      gap: 8px;
+    }
+
+    .top-row-right {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .top-row-left {
+      font-size: 11px;
+      color: #9ca3af;
+      text-align: left;
+    }
+
+    .btn-refresh {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid #374151;
+      background-color: #020617;
+      color: #e5e7eb;
+      cursor: pointer;
+    }
+
+    .btn-refresh:hover {
+      background-color: #111827;
+    }
+
+    @media (max-width: 768px) {
+      header, main {
+        padding: 12px 10px;
+      }
+      .cards {
+        flex-direction: column;
+      }
+      th, td {
+        font-size: 11px;
+        padding: 6px 6px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>SND – Risk Dashboard</h1>
+      <div class="subtitle">مراقبة سلوك المستخدمين واتخاذ القرار (Allow / Alert / Challenge / Block)</div>
+    </div>
+    <div class="top-row-left">
+      <button class="btn-refresh" onclick="loadEvents(true)">تحديث البيانات</button>
+      <div id="last-updated"></div>
+    </div>
+  </header>
+
+  <main>
+    <div class="cards">
+      <div class="card">
+        <div class="card-title">عدد الأحداث (آخر 50)</div>
+        <div class="card-value" id="stat-total">–</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Allow</div>
+        <div class="card-value" id="stat-allow">–</div>
+        <div class="card-badge">عمليات طبيعية منخفضة المخاطر</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Alert</div>
+        <div class="card-value" id="stat-alert">–</div>
+        <div class="card-badge">تنبيه ومراجعة سريعة</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Challenge</div>
+        <div class="card-value" id="stat-challenge">–</div>
+        <div class="card-badge">تحدّي إضافي (OTP / SMS / …)</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Block</div>
+        <div class="card-value" id="stat-block">–</div>
+        <div class="card-badge">محاولات عالية الخطورة</div>
+      </div>
+    </div>
+
+    <div class="top-row">
+      <div class="top-row-right">
+        <strong>أحدث الأحداث السلوكية</strong>
+        <span style="font-size:11px;color:#9ca3af">مرتّبة من الأحدث إلى الأقدم</span>
+      </div>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>المستخدم</th>
+            <th>المدينة</th>
+            <th>الجهاز</th>
+            <th>الخدمة</th>
+            <th>الوقت</th>
+            <th>AI Score</th>
+            <th>Rules</th>
+            <th>Risk</th>
+            <th>القرار</th>
+          </tr>
+        </thead>
+        <tbody id="events-body">
+          <!-- rows will be injected here -->
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <script>
+    function riskClass(score) {
+      if (score <= 30) return "risk-low";
+      if (score <= 60) return "risk-mid";
+      if (score <= 80) return "risk-high";
+      return "risk-very-high";
+    }
+
+    function decisionBadge(decision) {
+      const d = (decision || "").toLowerCase();
+      if (d === "allow") return "badge badge-allow";
+      if (d === "alert") return "badge badge-alert";
+      if (d === "challenge") return "badge badge-challenge";
+      if (d === "block") return "badge badge-block";
+      return "badge";
+    }
+
+    function formatDate(isoStr) {
+      if (!isoStr) return "";
+      try {
+        const d = new Date(isoStr);
+        if (isNaN(d.getTime())) return isoStr;
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        const h = String(d.getHours()).padStart(2, "0");
+        const min = String(d.getMinutes()).padStart(2, "0");
+        return `${y}-${m}-${day} ${h}:${min}`;
+      } catch (e) {
+        return isoStr;
+      }
+    }
+
+    async function loadEvents(fromButton = false) {
+      try {
+        const res = await fetch("/events");
+        const data = await res.json();
+        const events = data.events || [];
+
+        const tbody = document.getElementById("events-body");
+        tbody.innerHTML = "";
+
+        let allow = 0, alert = 0, challenge = 0, block = 0;
+
+        events.forEach(ev => {
+          const tr = document.createElement("tr");
+
+          const risk = ev.risk_score ?? 0;
+          const ai = ev.ai_risk_score ?? 0;
+          const rules = ev.rules_score ?? 0;
+          const dec = ev.decision || "";
+
+          if (dec === "Allow") allow++;
+          else if (dec === "Alert") alert++;
+          else if (dec === "Challenge") challenge++;
+          else if (dec === "Block") block++;
+
+          tr.innerHTML = `
+            <td>${ev.id}</td>
+            <td>${ev.user_id}</td>
+            <td>${ev.city}</td>
+            <td>${ev.device}</td>
+            <td>${ev.service}</td>
+            <td>${formatDate(ev.event_time)}</td>
+            <td>${ai.toFixed(1)}</td>
+            <td>${rules.toFixed(1)}</td>
+            <td class="${riskClass(risk)}">${risk.toFixed(1)}</td>
+            <td><span class="${decisionBadge(dec)}">${dec}</span></td>
+          `;
+
+          tbody.appendChild(tr);
+        });
+
+        // update stats
+        document.getElementById("stat-total").textContent = events.length;
+        document.getElementById("stat-allow").textContent = allow;
+        document.getElementById("stat-alert").textContent = alert;
+        document.getElementById("stat-challenge").textContent = challenge;
+        document.getElementById("stat-block").textContent = block;
+
+        const now = new Date();
+        document.getElementById("last-updated").textContent =
+          "آخر تحديث: " +
+          now.toLocaleDateString("ar-SA") + " " +
+          now.toLocaleTimeString("ar-SA", { hour: "2-digit", minute: "2-digit" });
+
+      } catch (err) {
+        console.error("Error loading events:", err);
+      }
+    }
+
+    // load on first open
+    loadEvents();
+  </script>
+</body>
+</html>
