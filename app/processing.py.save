@@ -292,9 +292,8 @@ def build_features(data: Dict[str, Any]) -> Dict[str, Any]:
         "change_mobile",
         "reset_password",
         "update_profile",
-        "update_id",
+        "update_ID",
         "issue_document",
-        "renew_id",
     ]
     is_sensitive_service = 1 if service in sensitive_services else 0
 

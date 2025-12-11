@@ -89,7 +89,7 @@ def compute_rules_score(features: dict) -> float:
 
     # خدمة حساسة (تغيير جوال / إعادة تعيين كلمة مرور ...)
     if is_sensitive_service:
-        rules_score += 25.0
+        rules_score += 30.0
 
     # وقت استخدام غريب (ليل / فجر)
     if time_window in ["night", "late_night"]:
@@ -97,7 +97,7 @@ def compute_rules_score(features: dict) -> float:
 
     # نشاط عالي جداً في آخر ساعة / 24 ساعة (Spike)
     if events_last_1h >= 5 or events_last_24h >= 20:
-        rules_score += 15.0
+        rules_score += 10.0
 
     # معدل استخدام يومي غير طبيعي
     if avg_daily_events > 50:

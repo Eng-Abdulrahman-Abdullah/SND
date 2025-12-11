@@ -230,7 +230,7 @@
       <div class="card">
         <div class="card-title">Challenge</div>
         <div class="card-value" id="stat-challenge">–</div>
-        <div class="card-badge">تحدّي إضافي (OTP / SMS / …)</div>
+        <div class="card-badge">تحقق إضافي</div>
       </div>
 
       <div class="card">
@@ -257,8 +257,6 @@
             <th>الجهاز</th>
             <th>الخدمة</th>
             <th>الوقت</th>
-            <th>AI Score</th>
-            <th>Rules</th>
             <th>Risk</th>
             <th>القرار</th>
           </tr>
@@ -318,8 +316,6 @@
           const tr = document.createElement("tr");
 
           const risk = ev.risk_score ?? 0;
-          const ai = ev.ai_risk_score ?? 0;
-          const rules = ev.rules_score ?? 0;
           const dec = ev.decision || "";
 
           if (dec === "Allow") allow++;
@@ -334,8 +330,6 @@
             <td>${ev.device}</td>
             <td>${ev.service}</td>
             <td>${formatDate(ev.event_time)}</td>
-            <td>${ai.toFixed(1)}</td>
-            <td>${rules.toFixed(1)}</td>
             <td class="${riskClass(risk)}">${risk.toFixed(1)}</td>
             <td><span class="${decisionBadge(dec)}">${dec}</span></td>
           `;

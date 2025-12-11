@@ -1,69 +1,146 @@
 import requests
 import time
+from datetime import datetime, timedelta
 
-BASE_URL = "http://127.0.0.1:5000/score"
+URL = "http://127.0.0.1:5000/score"
 
-def send(event):
-    print(f"\n--- Sending event: {event['service']} from {event['city']} ---")
-    r = requests.post(BASE_URL, json=event)
-    print("Status:", r.status_code)
-    print("Response:", r.json())
+# -----------------------
+# Helpers
+# -----------------------
 
-# 1) سيناريو طبيعي (Allow متوقع)
-normal_event = {
-    "user_id": "user_1",
-    "device": "iphone",
-    "city": "Riyadh",
-    "region": "SA",
-    "os": "iOS",
-    "browser": "Safari",
-    "service": "view_profile",
-    "event_time": "2025-12-09T10:30:00"
-}
-
-# 2) مدينة جديدة + جهاز جديد (Alert / Challenge حسب السكور)
-new_city_device = {
-    "user_id": "user_1",
-    "device": "new_laptop",
-    "city": "Dubai",
-    "region": "AE",
-    "os": "Windows",
-    "browser": "Chrome",
-    "service": "change_mobile",
-    "event_time": "2025-12-09T10:35:00"
-}
-
-# 3) خدمة حساسة مع سكّور عالي (Challenge متوقع)
-sensitive_service = {
-    "user_id": "user_2",
-    "device": "android",
-    "city": "Jeddah",
-    "region": "SA",
-    "os": "Android",
-    "browser": "Chrome",
-    "service": "reset_password",
-    "event_time": "2025-12-09T10:40:00"
-}
-
-# 4) سبايك محاولات (Spike) لنفس المستخدم (يفعّل قاعدة 5 في الساعة)
-def send_spike():
-    base = {
-        "user_id": "user_3",
-        "device": "android",
-        "city": "Riyadh",
-        "region": "SA",
-        "os": "Android",
-        "browser": "Chrome",
-        "service": "login",
+def send(user, device, city, service, minutes_ago=0):
+    event_time = datetime.now() - timedelta(minutes=minutes_ago)
+    payload = {
+        "user_id": user,
+        "device": device,
+        "city": city,
+        "service": service,
+        "event_time": event_time.isoformat(),
     }
+
+    print("\n>>> Sending event:", payload)
+    r = requests.post(URL, json=payload)
+    print("<<< Response:", r.json())
+    time.sleep(0.2)
+
+
+# ============================
+# USERS
+# ============================
+
+U1 = "User1"
+U2 = "User2"
+U3 = "User3"
+U4 = "User4"
+
+# ============================
+# SCENARIO: 50 EVENTS
+# ============================
+
+def run_tests():
+
+    # -----------------------------------------
+    # 1) Normal baseline behavior (Abdulrahman)
+    # -----------------------------------------
+    for i in range(10):
+        send(U1, "iPhone", "Riyadh", "view_profile", minutes_ago=60 - i)
+
+    # -----------------------------------------
+    # 2) Slight anomalies but still normal (Abdulrahman)
+    # -----------------------------------------
+    send(U1, "iPhone", "Riyadh", "renew_id")
+    send(U1, "iPhone", "Riyadh", "pay_bills")
+
+    # -----------------------------------------
+    # 3) Device change (Abdulrahman)
+    # -----------------------------------------
+    send(U1, "Windows-PC", "Riyadh", "view_profile")
+
+    # -----------------------------------------
+    # 4) New city moderate risk (Abdulrahman)
+    # -----------------------------------------
+    send(U1, "iPhone", "Jeddah", "view_profile")
+
+    # -----------------------------------------
+    # 5) Sensitive service + new city (Abdulrahman)
+    # -----------------------------------------
+    send(U1, "iPhone", "Jeddah", "reset_password")
+
+    # -----------------------------------------
+    # 6) High spike (Abdulrahman)
+    # -----------------------------------------
+    for i in range(5):
+        send(U1, "iPhone", "Riyadh", "login", minutes_ago=i)
+
+    # -----------------------------------------
+    # 7) Normal baseline for Nasser
+    # -----------------------------------------
+    for i in range(8):
+        send(U2, "Galaxy", "Dammam", "view_profile", minutes_ago=90 - i)
+
+    # -----------------------------------------
+    # 8) New device (Nasser)
+    # -----------------------------------------
+    send(U2, "Windows-Laptop", "Dammam", "renew_license")
+
+    # -----------------------------------------
+    # 9) Sensitive service (Nasser)
+    # -----------------------------------------
+    send(U2, "Galaxy", "Dammam", "change_mobile")
+
+    # -----------------------------------------
+    # 10) Attempt risky login from new city (Nasser)
+    # -----------------------------------------
+    send(U2, "Galaxy", "Medina", "login")
+
+    # -----------------------------------------
+    # 11) Dalal—Warm clean baseline
+    # -----------------------------------------
     for i in range(6):
-        event = base.copy()
-        event["event_time"] = f"2025-12-09T11:0{i}:00"
-        send(event)
-        time.sleep(0.3)
+        send(U3, "iPhone", "Riyadh", "view_profile", minutes_ago=30 - i)
+
+    # -----------------------------------------
+    # 12) Dalal—Sensitive service
+    # -----------------------------------------
+    send(U3, "iPhone", "Riyadh", "reset_password")
+
+    # -----------------------------------------
+    # 13) Dalal—City change mid-risk
+    # -----------------------------------------
+    send(U3, "iPhone", "Abha", "login")
+
+    # -----------------------------------------
+    # 14) Najla—new user warm start
+    # -----------------------------------------
+    send(U4, "Huawei", "Tabuk", "view_profile")
+    send(U4, "Huawei", "Tabuk", "view_profile")
+    send(U4, "Huawei", "Tabuk", "renew_id")
+
+    # -----------------------------------------
+    # 15) Najla—new device (should trigger alert/challenge)
+    # -----------------------------------------
+    send(U4, "MacBook", "Tabuk", "login")
+
+    # -----------------------------------------
+    # 16) Najla—Sensitive + new city
+    # -----------------------------------------
+    send(U4, "Huawei", "Jeddah", "reset_password")
+
+    # -----------------------------------------
+    # 17) Add some natural mixed events (to reach 50 total)
+    # -----------------------------------------
+    send(U1, "iPhone", "Riyadh", "e-service")
+    send(U1, "iPhone", "Riyadh", "otp_request")
+
+    send(U2, "Galaxy", "Dammam", "otp_request")
+    send(U2, "Galaxy", "Dammam", "login")
+
+    send(U3, "iPhone", "Riyadh", "pay_bills")
+    send(U3, "iPhone", "Riyadh", "e-service")
+
+    send(U4, "Huawei", "Tabuk", "otp_request")
+    send(U4, "Huawei", "Tabuk", "pay_bills")
+
 
 if __name__ == "__main__":
-    send(normal_event)
-    send(new_city_device)
-    send(sensitive_service)
-    send_spike()
+    run_tests()
