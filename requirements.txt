@@ -1,2 +1,4 @@
+Python3.10+
 flask==3.0.3
 scikit-learn==1.3.0
+SQLite 
