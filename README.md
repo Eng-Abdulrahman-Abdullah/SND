@@ -1,39 +1,79 @@
 # SND — Smart Behavior-Based Risk Engine
-SND is a lightweight behavior-based risk scoring system that simulates a user baseline and evaluates incoming events in real time.
-It produces an action decision: *Allow / Alert / Challenge / Block*.
 
-## Features
-- Real-time risk scoring (AI + rules)
-- User behavioral baseline concept
-- Simple Flask web dashboard
-- SQLite event logging (auto-created at runtime)
+SND is a lightweight *behavior-based risk scoring system* designed as an MVP to demonstrate how user behavior can be analyzed in real time to detect abnormal or risky activity.
+
+The system builds an *initial behavioral baseline per user*, then evaluates incoming events against that baseline to produce a decision:
+
+*Allow / Alert / Challenge / Block*
+
+---
+
+## Problem Statement
+Traditional security systems often rely on static rules.
+SND explores a smarter approach by *understanding user behavior patterns* and detecting anomalies that may indicate fraud, misuse, or compromise.
+
+---
+
+## How It Works
+1. User events are collected (time, frequency, behavior signals).
+2. A baseline is established for each user.
+3. Incoming events are evaluated using:
+   - Machine learning (IsolationForest)
+   - Simple risk rules
+4. A risk score and action decision are produced in real time.
+
+---
+
+## Key Features
+- Behavior-based risk scoring
+- User baseline simulation
+- Real-time decision engine
+- Flask web dashboard
+- SQLite event logging (auto-generated)
+
+---
 
 ## Tech Stack
 - Python 3.10+
 - Flask
 - scikit-learn (IsolationForest)
-- SQLite (built-in)
+- SQLite (built-in, no setup required)
+
+---
+
+## Project Scope
+- ✅ MVP / Proof of Concept
+- ❌ Not a production-ready security system
+- ✅ Designed for evaluation, learning, and demonstration purposes
+
+---
 
 ## Quick Start (Ubuntu)
+
 ```bash
 git clone https://github.com/Eng-Abdulrahman-Abdullah/SND.git
-username = Eng-Abdulrahman-Abdullah
-pass = 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
-
 cd SND
 
 python3 -m venv .venv
 source .venv/bin/activate
 
 python -m pip install --upgrade pip
-
-Access
-	•	Health: http://127.0.0.1:5000/health
-	•	Dashboard: http://127.0.0.1:5000/dashboard
-
-Notes
-	•	This project runs locally for demo/testing purposes.
-	•	Any runtime database files are generated automatically and are ignored by Git.
 pip install -r requirements.txt
 
 python run.py
+
+Access URLs
+	•	Health Check: http://127.0.0.1:5000/health
+	•	Dashboard: http://127.0.0.1:5000/dashboard
+
+⸻
+
+Notes
+	•	The application runs locally.
+	•	SQLite database files are generated automatically at runtime.
+	•	Runtime files are ignored via .gitignore.
+	•	No external services or APIs are required.
+
+
+
+
