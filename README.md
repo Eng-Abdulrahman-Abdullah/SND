@@ -42,9 +42,7 @@ SND explores a smarter approach by *understanding user behavior patterns* and de
 ---
 
 ## Project Scope
-- ✅ MVP / Proof of Concept
-- ❌ Not a production-ready security system
-- ✅ Designed for evaluation, learning, and demonstration purposes
+- MVP 
 
 ---
 ## Quick Start (Ubuntu)
