@@ -47,7 +47,6 @@ SND explores a smarter approach by *understanding user behavior patterns* and de
 - ✅ Designed for evaluation, learning, and demonstration purposes
 
 ---
-
 ## Quick Start (Ubuntu)
 
 ```bash
@@ -57,9 +56,7 @@ cd SND
 python3 -m venv .venv
 source .venv/bin/activate
 
-python -m pip install --upgrade pip
 pip install -r requirements.txt
-
 python run.py
 
 Access URLs
@@ -67,12 +64,14 @@ Access URLs
 	•	Dashboard: http://127.0.0.1:5000/dashboard
 
 ⸻
-
-Notes
-	•	The application runs locally.
-	•	SQLite database files are generated automatically at runtime.
-	•	Runtime files are ignored via .gitignore.
-	•	No external services or APIs are required.
+## Notes
+- The application runs locally.
+- SQLite database files are generated automatically at runtime.
+- Runtime files are ignored via .gitignore.
+- No external services or APIs are required.
+- This project is a functional MVP focusing on behavior-based risk scoring.
+- AI decisions are simulated using IsolationForest for anomaly detection.
+- The system is designed for clarity, extensibility, and demonstration purposes.
 
 
 
